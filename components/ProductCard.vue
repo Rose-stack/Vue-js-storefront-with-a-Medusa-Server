@@ -1,45 +1,94 @@
 <template>
-<div class="col-12 col-md-3 mt-3 mb-3">
-    <div class="card">
-        <nuxt-link :to="`/products/${item.id}`">
-            <img class="card-img-top" :src="item.thumbnail" style="height:150px" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title">{{item.title}}</h5>
-                <p class="card-text">From {{ lowestPrice.amount }} {{ lowestPrice.currency_code }} </p>
-            </div>
-        </nuxt-link>
-    </div>
-</div>  
+  <SfProductCard
+    :image="item.thumbnail"
+    :imageWidth="216"
+    :imageHeight="326"
+    badgeLabel=""
+    badgeColor=""
+    :title="item.title"
+    :link="this.url"
+    :linkTag="item.id"
+    :scoreRating="4"
+    :reviewsCount="7"
+    :maxRating="5"
+    :regularPrice="this.highestPrice.amount"
+    :specialPrice="this.lowestPrice.amount"
+    wishlistIcon="heart"
+    isInWishlistIcon="heart_fill"
+    :isInWishlist="false"
+    showAddToCartButton
+    :isAddedToCart="false"
+    :addToCartDisabled="false"
+  />
 </template>
-<script>
-export default {
-    name:"ProductCard",
-    props: {
-        item: {
-            type: Object,
-            // default () {
-            //     return {
-            //         id: 1,
-            //         title: 'Dummy Product',
-            //         thumbnail: 'https://picsum.photos/600/600',
-            //         variants: [{ prices: [{ amount: 0 }] }]
-            //     }
-            // }
-        }
-    },
-    computed:{
-        lowestPrice(){
-            const lowestPrice = this.item.variants.reduce((acc, curr) => {
-                return curr.prices.reduce((lowest, current) => {
-                    if (lowest.amount > current.amount) {
-                        return current
-                    }
-                    return lowest
-                })
-            }, { amount: 0 });
-            return lowestPrice || { amount: 10, currency_code: 'EUR' };
-        }
-    }
 
-}
+<script>
+import { SfProductCard } from "@storefront-ui/vue"; // Import the components
+export default {
+  name: "ProductCard",
+  components: {
+    SfProductCard,
+  },
+  props: {
+    item: {
+      type: Object,
+    },
+  },
+  computed: {
+    url() {
+      return `/products/${this.item.id}`; // Product page
+    },
+    lowestPrice() {
+      // Get the lowest price from the list of prices.
+      const lowestPrice = this.item.variants.reduce(
+        (acc, curr) => {
+          return curr.prices.reduce((lowest, current) => {
+            if (lowest.amount > current.amount) {
+              return current;
+            }
+            return lowest;
+          });
+        },
+        { amount: 0 }
+      );
+      // Format the amount and also add currency
+      return {
+        amount:
+          lowestPrice.amount > 0
+            ? (lowestPrice.amount / 100).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })
+            : 0,
+        currency_code: "USD",
+      };
+    },
+    highestPrice() {
+      // Get the highest price from the list of prices
+      const highestPrice = this.item.variants.reduce(
+        (acc, curr) => {
+          return curr.prices.reduce((highest, current) => {
+            if (highest.amount < current.amount) {
+              return current;
+            }
+            return highest;
+          });
+        },
+        { amount: 0 }
+      );
+
+      // Format the amount and also add currency
+      return {
+        amount:
+          highestPrice.amount > 0
+            ? (highestPrice.amount / 100).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })
+            : 0,
+        currency_code: "USD",
+      };
+    },
+  },
+};
 </script>

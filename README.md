@@ -1,4 +1,4 @@
-# nuxtjs-storefront-new
+# nuxtjs-storefront
 
 ## Build Setup
 

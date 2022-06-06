@@ -1,16 +1,16 @@
 export default {
+
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
-  server:{
-    port: 3333
+  server: {
+    port: 8000
   },
-
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'nuxtjs-storefront-new',
+    title: 'nuxtjs-storefront',
     htmlAttrs: {
       lang: 'en'
     },

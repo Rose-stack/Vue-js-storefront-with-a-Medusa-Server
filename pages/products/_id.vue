@@ -1,80 +1,342 @@
 <template>
-  <div class="mt-10 mb-10">
-        <div class="row">
-              <img
-                v-for="image in product.images"
-                :key="image.id"
-                width="150"
-                alt=""
-                :src="image.url"
-                class="cursor-pointer"
-                @click="imageToShow = image.id"
-              >
-          </div>
-        <div class="row">
-          <div class="col-md-12 mb-10 mt-10">
-                <h1 class="font-semibold text-3xl">
-                {{ product.title }}
-                </h1>
-        
-                <p class="font-light">
-                {{ product.description }}
-                </p>
+  <div id="product">
+    <SfBreadcrumbs
+      class="breadcrumbs desktop-only"
+      :breadcrumbs="breadcrumbs"
+    />
 
-                <p class="font-light">
-                  From {{ lowestPrice.amount/100 }} {{ lowestPrice.currency_code.toUpperCase() }}
-                </p>    
-            </div>
+    <div class="product">
+      <SfGallery
+        :images="this.getImages"
+        class="product__gallery"
+        :image-width="422"
+        :image-height="664"
+        :thumb-width="160"
+        :thumb-height="160"
+      />
+
+      <div class="product__info">
+        <div class="product__header">
+          <SfHeading
+            :title="product.title"
+            :level="1"
+            class="sf-heading--no-underline sf-heading--left"
+          />
+
+          <SfIcon
+            icon="drag"
+            size="42px"
+            color="#E0E0E1"
+            class="product__drag-icon smartphone-only"
+          />
+        </div>
+
+        <div class="product__price-and-rating">
+          <SfPrice :regular="this.lowestPrice.amount" />
+        </div>
+
+        <div>
+          <p class="product__description desktop-only">
+            {{ this.product.description }}
+          </p>
+
+          <SfAddToCart
+            v-model="qty"
+            class="product__add-to-cart"
+            @click="addToCart"
+          />
         </div>
       </div>
+    </div>
+
+    <transition name="slide">
+      <SfNotification
+        class="notification desktop-only"
+        :visible="isOpenNotification"
+        :message="`${qty} ${product.title} has been added to CART`"
+        @click:close="isOpenNotification = true"
+      >
+        <template #icon>
+          <span></span>
+        </template>
+      </SfNotification>
+    </transition>
+  </div>
 </template>
 
 <script>
-import Axios from 'axios';
+import {
+  // UI components
+  SfGallery,
+  SfHeading,
+  SfPrice,
+  SfIcon,
+  SfAddToCart,
+  SfBreadcrumbs,
+  SfNotification,
+} from "@storefront-ui/vue";
+import Axios from "axios";
 export default {
-  
-  name: 'ProductDetail',
-  data () {
+  name: "Product",
+  components: {
+    SfGallery,
+    SfHeading,
+    SfPrice,
+    SfIcon,
+    SfAddToCart,
+    SfBreadcrumbs,
+    SfNotification,
+  },
+  data() {
+    // default data
     return {
-      showDetails: false,
-      imageToShow: 'default_image',
+      current: 1,
+      qty: 1,
+      selected: false,
       product: {
-        id: 1,
-        title: 'Medusa Coffee Mug',
-        description: 'Every programmer\'s best friend.',
-        thumbnail: '',
-        variants: [{ prices: [{ amount: 0, currency_code: 'EUR' }] }],
-        images: [
-          { id: 'default_image', url: 'https://picsum.photos/600/400' },
-          { id: 'another_image', url: 'https://picsum.photos/600/400?id=100' }
-        ]
-      }
-    }
+        name: "",
+        title: "",
+        description: "",
+        images: [],
+        price: {
+          regular: 0,
+        },
+      },
+      breadcrumbs: [
+        {
+          text: "Home",
+          link: "/",
+        },
+      ],
+      isOpenNotification: false,
+    };
   },
   computed: {
-    lowestPrice () {
-      const lowestPrice = this.product.variants.reduce((acc, curr) => {
-        return curr.prices.reduce((lowest, current) => {
-          if (lowest.amount > current.amount) {
-            return current
-          }
-          return lowest
-        })
-      }, { amount: 0 })
-
-      return lowestPrice || { amount: 10, currency_code: 'usd' }
+    getImages() {
+      // Format Product images in a way that the component understands.
+      return this.product
+        ? this.product.images.map((image) => {
+            return {
+              mobile: {
+                url: image.url,
+              },
+              desktop: {
+                url: image.url,
+              },
+              big: {
+                url: image.url,
+              },
+              alt: this.product?.title,
+              name: this.product?.title,
+            };
+          })
+        : [];
     },
-
+    lowestPrice() {
+      // Get the least price
+      const lowestPrice = this.product.variants
+        ? this.product.variants.reduce(
+            (acc, curr) => {
+              return curr.prices.reduce((lowest, current) => {
+                if (lowest.amount > current.amount) {
+                  return current;
+                }
+                return lowest;
+              });
+            },
+            { amount: 0 }
+          )
+        : { amount: 0 };
+      // Format the amount and append the currency.
+      return {
+        amount:
+          lowestPrice.amount > 0
+            ? (lowestPrice.amount / 100).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })
+            : 0,
+        currency: "USD",
+      };
+    },
   },
-  async fetch () {
-  try {
-    const { data:{product} } = await Axios.get(`http://localhost:9000/store/products/${this.$route.params.id}`)
-    this.product = product
-    this.imageToShow = this.product.images[0].id
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log('The server is not responding')
+  methods: {
+    addToCart() {
+      this.isOpenNotification = true; // show notification
+      setTimeout(() => {
+        this.isOpenNotification = false; // hide notification
+      }, 3000);
+    },
+  },
+  async fetch() {
+    // Fetch the product based on the id.
+    try {
+      const {
+        data: { product },
+      } = await Axios.get(
+        `http://localhost:9000/store/products/${this.$route.params.id}`
+      );
+      this.product = product;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log("The server is not responding");
+    }
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+@import "~@storefront-ui/vue/styles";
+#product {
+  box-sizing: border-box;
+  @include for-desktop {
+    max-width: 1272px;
+    padding: 0 var(--spacer-sm);
+    margin: 0 auto;
   }
 }
+.product {
+  @include for-desktop {
+    display: flex;
+  }
+  &__info {
+    margin: var(--spacer-xs) auto;
+    @include for-desktop {
+      max-width: 32.625rem;
+      margin: 0 0 0 7.5rem;
+    }
+  }
+  &__header {
+    --heading-title-color: var(--c-link);
+    --heading-title-font-weight: var(--font-weight--bold);
+    --heading-title-font-size: var(--h3-font-size);
+    --heading-padding: 0;
+    margin: 0 var(--spacer-sm);
+    display: flex;
+    justify-content: space-between;
+    @include for-desktop {
+      --heading-title-font-weight: var(--font-weight--semibold);
+      margin: 0 auto;
+    }
+  }
+  &__drag-icon {
+    animation: moveicon 1s ease-in-out infinite;
+  }
+  &__price-and-rating {
+    margin: 0 var(--spacer-sm) var(--spacer-base);
+    align-items: center;
+    @include for-desktop {
+      display: flex;
+      justify-content: space-between;
+      margin: var(--spacer-sm) 0 var(--spacer-lg) 0;
+    }
+  }
+  &__count {
+    @include font(
+      --count-font,
+      var(--font-weight--normal),
+      var(--font-size--sm),
+      1.4,
+      var(--font-family--secondary)
+    );
+    color: var(--c-text);
+    text-decoration: none;
+    margin: 0 0 0 var(--spacer-xs);
+  }
+  &__description {
+    color: var(--c-link);
+    @include font(
+      --product-description-font,
+      var(--font-weight--light),
+      var(--font-size--base),
+      1.6,
+      var(--font-family--primary)
+    );
+  }
+  &__add-to-cart {
+    margin: var(--spacer-base) var(--spacer-sm) 0;
+    @include for-desktop {
+      margin-top: var(--spacer-2xl);
+    }
+  }
+  &__guide,
+  &__compare,
+  &__save {
+    display: block;
+    margin: var(--spacer-xl) 0 var(--spacer-base) auto;
+  }
+  &__compare {
+    margin-top: 0;
+  }
+  &__property {
+    margin: var(--spacer-base) 0;
+    &__button {
+      --button-font-size: var(--font-size--base);
+    }
+  }
+  &__additional-info {
+    color: var(--c-link);
+    @include font(
+      --additional-info-font,
+      var(--font-weight--light),
+      var(--font-size--sm),
+      1.6,
+      var(--font-family--primary)
+    );
+    &__title {
+      font-weight: var(--font-weight--normal);
+      font-size: var(--font-size--base);
+      margin: 0 0 var(--spacer-sm);
+      &:not(:first-child) {
+        margin-top: 3.5rem;
+      }
+    }
+    &__paragraph {
+      margin: 0;
+    }
+  }
+  &__gallery {
+    flex: 1;
+  }
 }
-</script>
+.breadcrumbs {
+  margin: var(--spacer-base) auto var(--spacer-lg);
+}
+.notification {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  --notification-border-radius: 0;
+  --notification-max-width: 100%;
+  --notification-background: var(--c-link);
+  --notification-font-size: var(--font-size--sm);
+  --notification-font-family: var(--font-family--primary);
+  --notification-font-weight: var(--font-weight--normal);
+  --notification-padding: var(--spacer-base) var(--spacer-lg);
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s;
+}
+
+.slide-enter {
+  transform: translateY(40px);
+}
+
+.slide-leave-to {
+  transform: translateY(-80px);
+}
+@keyframes moveicon {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 30%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+</style>

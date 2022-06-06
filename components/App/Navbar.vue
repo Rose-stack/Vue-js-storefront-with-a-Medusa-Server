@@ -1,14 +1,32 @@
 <template>
-<div>
-  <b-navbar toggleable="lg" type="dark" variant="info">
-    <b-navbar-brand href="#">Mystore</b-navbar-brand>
-    <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-    <b-collapse id="nav-collapse" is-nav>
-      <b-navbar-nav>
-        <b-nav-item href="/">Home</b-nav-item>
-      </b-navbar-nav>
-    </b-collapse>
-  </b-navbar>
-</div>
+  <SfHeader :logo="shopLogo" :title="shopName" active-icon="account">
+    <template #navigation>
+      <SfHeaderNavigationItem
+        v-for="(category, key) in navbarLinks"
+        :key="`sf-header-navigation-item-${key}`"
+        :link="`${category.link}`"
+        :label="category.title"
+      />
+    </template>
+  </SfHeader>
 </template>
-    
+<script>
+import { SfHeader } from "@storefront-ui/vue";
+export default {
+  name: "Default",
+  components: {
+    SfHeader,
+  },
+  data() {
+    return {
+      shopName: "My Storefront App",
+      navbarLinks: [
+        {
+          title: "Products",
+          link: "/",
+        },
+      ],
+    };
+  },
+};
+</script>
