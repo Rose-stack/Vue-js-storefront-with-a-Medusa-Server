@@ -1,5 +1,10 @@
 <template>
-  <SfHeader :logo="shopLogo" :title="shopName" active-icon="account">
+  <SfHeader
+    :logo="shopLogo"
+    :title="shopName"
+    active-icon="account"
+    :isSticky="true"
+  >
     <template #navigation>
       <SfHeaderNavigationItem
         v-for="(category, key) in navbarLinks"
@@ -19,7 +24,8 @@ export default {
   },
   data() {
     return {
-      shopName: "My Storefront App",
+      shopName: "My Store App",
+      shopLogo: "medusa-logo.svg",
       navbarLinks: [
         {
           title: "Products",
