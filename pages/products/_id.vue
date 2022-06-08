@@ -8,11 +8,12 @@
     <div class="product">
       <SfGallery
         :images="this.getImages"
-        class="product__gallery"
         :image-width="422"
         :image-height="664"
         :thumb-width="160"
         :thumb-height="160"
+        :sliderOptions="{ autoplay: 3000, rewind: true, gap: 0 }"
+        :enableZoom="true"
       />
 
       <div class="product__info">
@@ -92,7 +93,7 @@ export default {
     return {
       current: 1,
       qty: 1,
-      selected: false,
+      selected: true,
       product: {
         name: "",
         title: "",
@@ -132,6 +133,7 @@ export default {
           })
         : [];
     },
+
     lowestPrice() {
       // Get the least price
       const lowestPrice = this.product.variants
@@ -196,6 +198,7 @@ export default {
   }
 }
 .product {
+  margin-bottom: 20px;
   @include for-desktop {
     display: flex;
   }
