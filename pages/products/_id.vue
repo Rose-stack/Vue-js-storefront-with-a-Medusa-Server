@@ -5,7 +5,10 @@
       :breadcrumbs="breadcrumbs"
     />
 
-    <div class="product">
+    <p v-if="$fetchState.pending">Fetching Data...</p>
+    <p v-else-if="$fetchState.error">An error occurred :(</p>
+
+    <div v-else class="product">
       <SfGallery
         :images="this.getImages"
         :image-width="422"
