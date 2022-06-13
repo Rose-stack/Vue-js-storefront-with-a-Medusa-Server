@@ -69,7 +69,7 @@ export default {
     try {
       const {
         data: { products },
-      } = await Axios.get("http://localhost:9000/store/products");
+      } = await Axios.get(`${process.env.baseUrl}/store/products`);
       this.products = products;
     } catch (e) {
       console.log("An error occured", e);

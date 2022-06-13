@@ -56,6 +56,7 @@
     <transition name="slide">
       <SfNotification
         class="notification desktop-only"
+        type="success"
         :visible="isOpenNotification"
         :message="`${qty} ${product.title} has been added to CART`"
         @click:close="isOpenNotification = true"
@@ -167,7 +168,8 @@ export default {
   },
   methods: {
     addToCart() {
-      this.isOpenNotification = true; // show notification
+      this.isOpenNotification = true;// show notification
+      
       setTimeout(() => {
         this.isOpenNotification = false; // hide notification
       }, 3000);
@@ -178,8 +180,8 @@ export default {
     try {
       const {
         data: { product },
-      } = await Axios.get(
-        `http://localhost:9000/store/products/${this.$route.params.id}`
+      } = await Axios.get( `${process.env.baseUrl}/store/products/${this.$route.params.id}`
+      
       );
       this.product = product;
     } catch (e) {
@@ -188,6 +190,8 @@ export default {
     }
   },
 };
+</script>
+
 </script>
 
 <style lang="scss" scoped>
@@ -315,8 +319,7 @@ export default {
   right: 0;
   --notification-border-radius: 0;
   --notification-max-width: 100%;
-  --notification-background: var(--c-link);
-  --notification-font-size: var(--font-size--sm);
+  --notification-font-size: var(--font-size--lg);
   --notification-font-family: var(--font-family--primary);
   --notification-font-weight: var(--font-weight--normal);
   --notification-padding: var(--spacer-base) var(--spacer-lg);

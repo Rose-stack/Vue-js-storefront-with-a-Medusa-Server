@@ -9,6 +9,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxtjs/dotenv": "^1.4.1",
     "@storefront-ui/vue": "^0.13.2",
     "axios": "^0.27.2",
     "bootstrap": "^4.6.1",
