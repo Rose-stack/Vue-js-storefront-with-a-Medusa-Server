@@ -3,7 +3,6 @@
     :logo="shopLogo"
     :title="shopName"
     active-icon="account"
-    :isSticky="true"
   >
     <template #navigation>
       <SfHeaderNavigationItem
