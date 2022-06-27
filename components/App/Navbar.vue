@@ -24,7 +24,7 @@ export default {
   data() {
     return {
       shopName: "My Store App",
-      shopLogo: "medusa-logo.svg",
+      shopLogo: "/logo.svg",
       navbarLinks: [
         {
           title: "Products",
